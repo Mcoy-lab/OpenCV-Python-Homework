@@ -1,0 +1,74 @@
+import cv2 as cv
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+
+
+gamma_img = cv.imread('gamma.png', 0)
+fi = gamma_img / 255.0
+# 伽马变换
+gamma3 = 3
+gamma10 = 10
+out3 = np.power(fi, gamma3)
+out10 = np.power(fi, gamma10)
+cv.imshow("gamma10", out10)
+cv.imshow("gamma3", out3)
+cv.waitKey()
+
+
+def calcGrayHist(in_value):
+    # 计算灰度直方图
+    h, w = in_value.shape[:2]
+    gray_hist = np.zeros([256], np.uint64)
+    for i in range(h):
+        for j in range(w):
+            gray_hist[in_value[i][j]] += 1
+    return gray_hist
+
+
+# def equalHist(img):
+#     # 灰度图像矩阵的高、宽
+#     h, w = img.shape
+#     # 第一步：计算灰度直方图
+#     grayHist = calcGrayHist(img)
+#     # 第二步：计算累加灰度直方图
+#     zero_cumu_moment = np.zeros([256], np.uint32)
+#     for p in range(256):
+#         if p == 0:
+#             zero_cumu_moment[p] = grayHist[0]
+#         else:
+#             zero_cumu_moment[p] = zero_cumu_moment[p - 1] + grayHist[p]
+#     # 第三步：根据累加灰度直方图得到输入灰度级和输出灰度级之间的映射关系
+#     output = np.zeros([256], np.uint8)
+#     cofficient = 256.0 / (h * w)
+#     for p in range(256):
+#         q = cofficient * float(zero_cumu_moment[p]) - 1
+#         if q >= 0:
+#             output[p] = math.floor(q)
+#         else:
+#             output[p] = 0
+#     # 第四步：得到直方图均衡化后的图像
+#     equalHistImage = np.zeros(img.shape, np.uint8)
+#     for i in range(h):
+#         for j in range(w):
+#             equalHistImage[i][j] = output[img[i][j]]
+#     return equalHistImage
+
+
+girl_img = cv.imread('girl.png', 0)
+grayHist = calcGrayHist(girl_img)
+x = np.arange(256)
+# 绘制灰度直方图
+plt.plot(x, grayHist, linewidth=2, c='black')
+plt.xlabel("gray Label")
+plt.ylabel("number of pixels")
+plt.show()
+
+# 使用自己写的函数实现
+# equal = equalHist()
+# grayHist(img, equal)
+# 使用OpenCV提供的直方图均衡化函数实现
+equal = cv.equalizeHist(girl_img)
+# cv.imshow("img", girl_img)
+cv.imshow("equal", equal)
+cv.waitKey()
